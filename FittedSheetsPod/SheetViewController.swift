@@ -204,7 +204,11 @@ public class SheetViewController: UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.additionalSafeAreaInsets = UIEdgeInsets(top: -self.options.pullBarHeight, left: 0, bottom: 0, right: 0)
+        if #available(iOS 11.0, *) {
+            self.additionalSafeAreaInsets = UIEdgeInsets(top: -self.options.pullBarHeight, left: 0, bottom: 0, right: 0)
+        } else {
+            // Fallback on earlier versions
+        }
         
         self.view.backgroundColor = UIColor.clear
         self.addPanGestureRecognizer()
@@ -332,11 +336,15 @@ public class SheetViewController: UIViewController {
             $0.centerX.alignWithSuperview()
             self.contentViewHeightConstraint = $0.height.set(self.height(for: self.currentSize))
             
-            let top: CGFloat
+            var top: CGFloat = 0
             if (self.options.useFullScreenMode) {
                 top = 0
             } else {
-                top = max(12, UIApplication.shared.keyWindow?.safeAreaInsets.top ?? 12)
+                if #available(iOS 11.0, *) {
+                    top = max(12, UIApplication.shared.keyWindow?.safeAreaInsets.top ?? 12)
+                } else {
+                    // Fallback on earlier versions
+                }
             }
             $0.bottom.pinToSuperview()
             $0.top.pinToSuperview(inset: top, relation: .greaterThanOrEqual).priority = UILayoutPriority(999)
@@ -501,11 +509,15 @@ public class SheetViewController: UIViewController {
     private func height(for size: SheetSize?) -> CGFloat {
         guard let size = size else { return 0 }
         let contentHeight: CGFloat
-        let fullscreenHeight: CGFloat
+        var fullscreenHeight: CGFloat = 0
         if self.options.useFullScreenMode {
             fullscreenHeight = self.view.bounds.height - self.minimumSpaceAbovePullBar
         } else {
-            fullscreenHeight = self.view.bounds.height - self.view.safeAreaInsets.top - self.minimumSpaceAbovePullBar
+            if #available(iOS 11.0, *) {
+                fullscreenHeight = self.view.bounds.height - self.view.safeAreaInsets.top - self.minimumSpaceAbovePullBar
+            } else {
+                // Fallback on earlier versions
+            }
         }
         switch (size) {
             case .fixed(let height):

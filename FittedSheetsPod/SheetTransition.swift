@@ -50,11 +50,16 @@ public class SheetTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 animations: {
                     if self.options.shrinkPresentingViewController {
 
-                        let topSafeArea = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.safeAreaInsets.top ?? 0
+                        if #available(iOS 11.0, *) {
+                            let topSafeArea = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.safeAreaInsets.top ?? 0
+                            presenter.view.layer.transform = CATransform3DConcat(CATransform3DMakeTranslation(0, topSafeArea/2, 0), CATransform3DMakeScale(0.92, 0.92, 1))
+                            presenter.view.layer.cornerRadius = self.options.presentingViewCornerRadius
+                            presenter.view.layer.masksToBounds = true
+                        } else {
+                            // Fallback on earlier versions
+                        }
                         
-                        presenter.view.layer.transform = CATransform3DConcat(CATransform3DMakeTranslation(0, topSafeArea/2, 0), CATransform3DMakeScale(0.92, 0.92, 1))
-                        presenter.view.layer.cornerRadius = self.options.presentingViewCornerRadius
-                        presenter.view.layer.masksToBounds = true
+                 
                     }
                     contentView.transform = .identity
                     sheet.overlayView.alpha = 1
@@ -105,10 +110,15 @@ public class SheetTransition: NSObject, UIViewControllerAnimatedTransitioning {
         guard self.options.shrinkPresentingViewController, let presenter = self.presenter else { return }
         let scale: CGFloat = min(1, 0.92 + (0.08 * percentComplete))
         
-        let topSafeArea = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.safeAreaInsets.top ?? 0
+        if #available(iOS 11.0, *) {
+            let topSafeArea = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.safeAreaInsets.top ?? 0
+            presenter.view.layer.transform = CATransform3DConcat(CATransform3DMakeTranslation(0, (1 - percentComplete) * topSafeArea/2, 0), CATransform3DMakeScale(scale, scale, 1))
+            presenter.view.layer.cornerRadius = self.options.presentingViewCornerRadius * (1 - percentComplete)
+        } else {
+            // Fallback on earlier versions
+        }
         
-        presenter.view.layer.transform = CATransform3DConcat(CATransform3DMakeTranslation(0, (1 - percentComplete) * topSafeArea/2, 0), CATransform3DMakeScale(scale, scale, 1))
-        presenter.view.layer.cornerRadius = self.options.presentingViewCornerRadius * (1 - percentComplete)
+       
     }
 }
 

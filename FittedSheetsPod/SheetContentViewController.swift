@@ -179,13 +179,21 @@ public class SheetContentViewController: UIViewController {
                 view.top.pinToSuperview()
         }
         if self.options.shouldExtendBackground, self.options.pullBarHeight > 0 {
-            self.childViewController.additionalSafeAreaInsets = UIEdgeInsets(top: self.options.pullBarHeight, left: 0, bottom: 0, right: 0)
+            if #available(iOS 11.0, *) {
+                self.childViewController.additionalSafeAreaInsets = UIEdgeInsets(top: self.options.pullBarHeight, left: 0, bottom: 0, right: 0)
+            } else {
+                // Fallback on earlier versions
+            }
         }
         
         self.childViewController.didMove(toParent: self)
         
         self.childContainerView.layer.masksToBounds = true
-        self.childContainerView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+        if #available(iOS 11.0, *) {
+            self.childContainerView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+        } else {
+            // Fallback on earlier versions
+        }
     }
 
     private func setupContentView() {
@@ -198,7 +206,11 @@ public class SheetContentViewController: UIViewController {
         }
         
         self.contentView.layer.masksToBounds = true
-        self.contentView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+        if #available(iOS 11.0, *) {
+            self.contentView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+        } else {
+            // Fallback on earlier versions
+        }
     }
     
     private func setupChildContainerView() {
